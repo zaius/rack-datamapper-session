@@ -60,7 +60,13 @@ module Rack
 
       def set_session(env, sid, new_session, options)
         expiry = options[:expire_after]
-        expiry = expiry.nil? ? 0 : expiry + 1
+        # HACK: where is this called from? no idea where to add the 
+        # expire_after option, so I just hack it in here. Don't expire 
+        # for 10 years
+        expiry = expiry.nil? ? 3600*24*365*10 : expiry + 1
+
+        env["rack.session.options"][:expire_after] = expiry
+
 
         session = DataMapperSession.first(:sid => sid) if sid
 
